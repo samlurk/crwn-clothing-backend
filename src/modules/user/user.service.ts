@@ -36,7 +36,9 @@ export class UserService {
   }
 
   async addUser(user: CreateUserDto): Promise<void> {
-    user.password = await encrypt(user.password);
+    if (typeof user.password === 'string') {
+      user.password = await encrypt(user.password);
+    }
     await this.userRepository.save({ ...user, username: await this.generateUniqueRandomUsername() });
   }
 

@@ -18,7 +18,18 @@ export class AuthService {
   async login({ id, username }: Pick<UserInterface, 'id' | 'username'>) {
     const payload = { id, username };
     return {
-      access_token: this.jwtService.sign(payload)
+      ACCESS_TOKEN: this.jwtService.sign(payload)
+    };
+  }
+
+  async googleLogin(googleUser: Pick<UserInterface, 'firstName' | 'lastName' | 'email'>) {
+    let user = await this.userService.getOneUserByEmail(googleUser.email);
+    if (user === null) {
+      await this.userService.addUser(googleUser);
+      user = await this.userService.getOneUserByEmail(googleUser.email);
+    }
+    return {
+      ACCESS_TOKEN: this.jwtService.sign({ id: user?.id, username: user?.username })
     };
   }
 }
