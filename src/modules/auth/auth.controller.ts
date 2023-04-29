@@ -1,14 +1,15 @@
-import { Controller, Request, Post, UseGuards, Get } from '@nestjs/common';
+import { Controller, Request, Post, UseGuards, Get, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGoogleLoginRequest, AuthLoginRequest } from './interfaces/auth-login.interface';
-import { LocalAuthGuard } from './guards/local-auth.guard';
+import { AuthLoginRequest } from './interfaces/auth-login.interface';
+import { SignInAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { SignUpGuard } from './guards/sign-up.guard';
+import { CreateUserDto } from '../user/dtos/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(SignInAuthGuard)
   @Post('login')
   async login(@Request() req: AuthLoginRequest) {
     return await this.authService.login(req.user);
@@ -20,14 +21,14 @@ export class AuthController {
     return req.user;
   }
 
-  @Get('google')
-  @UseGuards(GoogleAuthGuard)
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async googleAuth(@Request() _: Request) {}
+  @Post('login-google')
+  async loginGoogle(@Body('token') token: string) {
+    return await this.authService.verifyGoogleIdToken(token);
+  }
 
-  @Get('google/redirect')
-  @UseGuards(GoogleAuthGuard)
-  async googleAuthRedirect(@Request() req: AuthGoogleLoginRequest) {
-    return await this.authService.googleLogin(req.user);
+  @UseGuards(SignUpGuard)
+  @Post('signup')
+  async signUp(@Body() newUser: CreateUserDto) {
+    return await this.authService.signUp(newUser);
   }
 }
