@@ -5,14 +5,15 @@ import { SignInAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { SignUpGuard } from './guards/sign-up.guard';
 import { CreateUserDto } from '../user/dtos/create-user.dto';
+import { LoginUsernameDto } from './dtos/login-username.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @UseGuards(SignInAuthGuard)
   @Post('login')
-  async login(@Request() req: AuthLoginRequest) {
-    return await this.authService.login(req.user);
+  async login(@Request() { user }: AuthLoginRequest, @Body() _: LoginUsernameDto) {
+    return await this.authService.login(user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -22,8 +23,8 @@ export class AuthController {
   }
 
   @Post('login-google')
-  async loginGoogle(@Body('token') token: string) {
-    return await this.authService.verifyGoogleIdToken(token);
+  async loginGoogle(@Body('code') code: string) {
+    return await this.authService.verifyGoogleIdToken(code);
   }
 
   @UseGuards(SignUpGuard)

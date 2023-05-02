@@ -42,6 +42,13 @@ export class UserService {
     await this.userRepository.save({ ...user, username: await this.generateUniqueRandomUsername() });
   }
 
+  async findOneByEmailOrUsername(usernameOrEmail: string): Promise<User | null> {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.email = :usernameOrEmail OR user.username = :usernameOrEmail', { usernameOrEmail })
+      .getOne();
+  }
+
   async ifUserExists(userData: object): Promise<boolean> {
     if (!(await this.userRepository.exist({ where: userData }))) return false;
     return true;

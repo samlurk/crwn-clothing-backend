@@ -1,7 +1,7 @@
 import { UserInterface } from 'src/modules/user/interfaces/user.interface';
 
 export class AuthLoginRequest extends Request {
-  user: Pick<UserInterface, 'id' | 'username'>;
+  user: Pick<UserInterface, 'id' | 'username' | 'email'>;
 }
 
 export class AuthGoogleLoginRequest extends Request {

@@ -17,16 +17,15 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, password: string) {
-    const user = await this.userService.getOneUserByUsername(username);
+    const user = await this.userService.findOneByEmailOrUsername(username);
     if (user === null) return null;
     if (!(await verified(password, user.password))) return false;
     return user;
   }
 
-  async login({ id, username }: Pick<UserInterface, 'id' | 'username'>) {
-    const payload = { id, username };
+  async login(user: any) {
     return {
-      ACCESS_TOKEN: this.jwtService.sign(payload)
+      ACCESS_TOKEN: this.jwtService.sign({ id: user.id, username: user.username, email: user.email })
     };
   }
 
@@ -43,22 +42,27 @@ export class AuthService {
   }
 
   // TODO: refactor this method, it should be a guard
-  async verifyGoogleIdToken(token: string) {
+  async verifyGoogleIdToken(code: string) {
     const client = new OAuth2Client(
       this.configService.get<string>('GOOGLE_ID'),
-      this.configService.get<string>('GOOGLE_SECRET')
+      this.configService.get<string>('GOOGLE_SECRET'),
+      'postmessage'
     );
+    const {
+      tokens: { id_token: ID_TOKEN }
+    } = await client.getToken(code);
+    if (typeof ID_TOKEN === 'undefined') return undefined;
     const ticket = await client.verifyIdToken({
-      idToken: token,
+      idToken: ID_TOKEN as string,
       audience: client._clientId
     });
     if (typeof ticket.getPayload() === 'undefined') return undefined;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const { email, given_name, family_name } = ticket.getPayload() as TokenPayload;
+    const { email, given_name: GIVEN_NAME, family_name: FAMILY_NAME } = ticket.getPayload() as TokenPayload;
+    console.log(email, GIVEN_NAME, FAMILY_NAME);
     return await this.googleLogin({
       email: email as string,
-      firstName: given_name as string,
-      lastName: family_name as string
+      firstName: GIVEN_NAME as string,
+      lastName: FAMILY_NAME as string
     });
   }
 
