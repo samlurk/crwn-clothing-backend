@@ -4,6 +4,8 @@ import { User } from 'src/modules/user/entity/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Base from './base';
 import Database from './db';
+import { Product } from 'src/modules/product/entity/product.entity';
+import { Category } from 'src/modules/category/entity/category.entity';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import Database from './db';
         database: configService.get<string>('DB_NAME'),
         synchronize: true,
         logging: true,
-        entities: [User],
+        entities: [User, Product, Category],
         subscribers: [],
         migrations: []
       })

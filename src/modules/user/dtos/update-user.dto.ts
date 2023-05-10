@@ -1,6 +1,22 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword } from 'class-validator';
+import {
+  IsBooleanString,
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  IsStrongPassword,
+  IsUrl
+} from 'class-validator';
+import { UserRole } from '../enums/user-role.enum';
 
 export class UpdateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  username: string;
+
   @IsString()
   @IsNotEmpty()
   @IsOptional()
@@ -12,13 +28,11 @@ export class UpdateUserDto {
   lastName: string;
 
   @IsEmail()
-  @IsString()
   @IsNotEmpty()
   @IsOptional()
   email: string;
 
   @IsStrongPassword()
-  @IsString()
   @IsNotEmpty()
   @IsOptional()
   password: string;
@@ -26,5 +40,21 @@ export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  username: string;
+  @IsPhoneNumber()
+  phone: string;
+
+  @IsNotEmpty()
+  @IsOptional()
+  @IsIn([UserRole.Admin, UserRole.Customer])
+  role: UserRole;
+
+  @IsNotEmpty()
+  @IsOptional()
+  @IsUrl()
+  avatar: string;
+
+  @IsNotEmpty()
+  @IsOptional()
+  @IsBooleanString()
+  isActive: boolean;
 }

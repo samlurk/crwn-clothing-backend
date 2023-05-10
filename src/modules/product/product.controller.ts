@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -12,26 +11,35 @@ import {
   Put,
   UseGuards
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UpdateUserDto } from './dtos/update-user.dto';
+import { CreateProductDto } from './dtos/create-product.dto';
+import { ProductService } from './product.service';
+import { UpdateProductDto } from './dtos/update-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserRole } from './enums/user-role.enum';
-import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../user/enums/user-role.enum';
 
-@Controller('user')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+@Controller('product')
+export class ProductController {
+  constructor(private readonly productService: ProductService) {}
 
-  @Get()
+  @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  @HttpCode(200)
-  async getAllUsers() {
+  async createProduct(@Body() newProduct: CreateProductDto) {
     try {
-      const userResponse = await this.userService.getAllUsers();
-      return userResponse;
+      await this.productService.addProduct(newProduct);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get()
+  async getAllProducts() {
+    try {
+      const productResponse = await this.productService.getAllProducts();
+      return productResponse;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -39,26 +47,10 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Admin)
-  @HttpCode(200)
-  async getOneUser(@Param('id', new ParseIntPipe()) userId: number) {
+  async getOneProduct(@Param('id', new ParseIntPipe()) id: number) {
     try {
-      const userResponse = await this.userService.getOneUserById(userId);
-      return userResponse;
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Admin)
-  @HttpCode(204)
-  async createUser(@Body() newUser: CreateUserDto) {
-    try {
-      await this.userService.addUser(newUser);
+      const productResponse = await this.productService.getOneProduct(id);
+      return productResponse;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -68,10 +60,9 @@ export class UserController {
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  @HttpCode(204)
-  async updateUser(@Param('id', new ParseIntPipe()) userId: number, @Body() updateUser: UpdateUserDto) {
+  async updateProduct(@Param('id', new ParseIntPipe()) id: number, @Body() updateCategory: UpdateProductDto) {
     try {
-      await this.userService.updateUser(userId, updateUser);
+      await this.productService.updateProduct(id, updateCategory);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -81,10 +72,9 @@ export class UserController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  @HttpCode(204)
-  async deleteUser(@Param('id', new ParseIntPipe()) id: number) {
+  async deleteProduct(@Param('id', new ParseIntPipe()) id: number) {
     try {
-      await this.userService.deleteUser(id);
+      await this.productService.deleteProduct(id);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);

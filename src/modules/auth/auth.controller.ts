@@ -1,35 +1,44 @@
-import { Controller, Request, Post, UseGuards, Get, Body } from '@nestjs/common';
+import { Controller, Post, UseGuards, Body, HttpStatus, HttpException, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthLoginRequest } from './interfaces/auth-login.interface';
 import { SignInAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { SignUpGuard } from './guards/sign-up.guard';
 import { CreateUserDto } from '../user/dtos/create-user.dto';
-import { LoginUsernameDto } from './dtos/login-username.dto';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @UseGuards(SignInAuthGuard)
   @Post('login')
-  async login(@Request() { user }: AuthLoginRequest, @Body() _: LoginUsernameDto) {
-    return await this.authService.login(user);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req: AuthLoginRequest) {
-    return req.user;
+  async login(@Req() req: Request) {
+    try {
+      const authResponse = await this.authService.login(req.user);
+      return authResponse;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Post('login-google')
   async loginGoogle(@Body('code') code: string) {
-    return await this.authService.verifyGoogleIdToken(code);
+    try {
+      const authResponse = await this.authService.loginWithGoogle(code);
+      return authResponse;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  @UseGuards(SignUpGuard)
+  @UseGuards()
   @Post('signup')
   async signUp(@Body() newUser: CreateUserDto) {
-    return await this.authService.signUp(newUser);
+    try {
+      const authResponse = await this.authService.signUp(newUser);
+      return authResponse;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
