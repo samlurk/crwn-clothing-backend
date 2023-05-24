@@ -10,7 +10,6 @@ export class CategoryService {
   constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>) {}
   async addCategory(newCategory: CreateCategoryDto) {
     const category = this.categoryRepository.create({ ...newCategory });
-    console.log(category);
     await this.categoryRepository.insert(category);
   }
 
