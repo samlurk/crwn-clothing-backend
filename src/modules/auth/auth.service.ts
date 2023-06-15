@@ -22,8 +22,8 @@ export class AuthService {
 
   async verifyGoogleCredentials(code: string) {
     const client = new OAuth2Client(
-      this.configService.get<string>('GOOGLE_ID'),
-      this.configService.get<string>('GOOGLE_SECRET'),
+      this.configService.get<string>('googleId'),
+      this.configService.get<string>('googleSecret'),
       'postmessage'
     );
 

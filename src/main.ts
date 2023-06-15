@@ -2,15 +2,18 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-
-const port = process.env.PORT ?? 3000;
-const host = process.env.HOST ?? '0.0.0.0';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const port = configService.get('port');
+  const host = configService.get('host');
+
   app.enableCors({
-    origin: process.env.ORIGIN
+    origin: configService.get('CorsOrigin')
   });
+
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(port, host);
 }
