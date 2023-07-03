@@ -40,9 +40,19 @@ export class ProductService {
   async getOneProduct(id: number) {
     const productResponse = await this.productRepository
       .createQueryBuilder('products')
-      .where('user.id = :id ', { id })
+      .where('products.id = :id ', { id })
       .getOne();
     if (productResponse === null) throw new HttpException('product/product-not-found', HttpStatus.NOT_FOUND);
+    return productResponse;
+  }
+
+  async getMultipleProducts(products: number[]) {
+    const productResponse = await this.productRepository
+      .createQueryBuilder('products')
+      .where('products.id IN (:...products)', { products })
+      .getMany();
+    if (productResponse.length === 0 || typeof productResponse[0] === undefined)
+      throw new HttpException('product/no-product-found', HttpStatus.NOT_FOUND);
     return productResponse;
   }
 

@@ -12,8 +12,7 @@ export class UserService {
   constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {}
 
   async ifUserExists(userData: object): Promise<boolean> {
-    if (!(await this.userRepository.exist({ where: userData }))) return false;
-    return true;
+    return await this.userRepository.exist({ where: userData });
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -56,7 +55,8 @@ export class UserService {
     const ifUserDataExists = await this.userRepository.findOne({ where: { email: newUser.email } });
     if (ifUserDataExists === null) {
       const user = this.userRepository.create({ ...newUser, username: await this.generateUniqueRandomUsername() });
-      return (await this.userRepository.insert(user)).generatedMaps[0] as User;
+      const userInsertedResponse = (await this.userRepository.insert(user)).generatedMaps[0] as User;
+      return await this.getOneUserById(userInsertedResponse.id);
     } else {
       return ifUserDataExists;
     }

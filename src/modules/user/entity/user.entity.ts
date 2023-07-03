@@ -1,6 +1,15 @@
 import { Product } from 'src/modules/product/entity/product.entity';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  OneToOne
+} from 'typeorm';
 import { UserRole } from '../enums/user-role.enum';
+// import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
 
 @Entity('users')
 export class User {
@@ -38,8 +47,11 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @OneToMany(() => Product, (product) => product.vendor, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+  @OneToMany(() => Product, (product) => product.vendor)
   products: Product[];
+
+  // @OneToOne(() => CartItem, (cartItem) => cartItem.session)
+  // cartItem: CartItem;
 
   @CreateDateColumn()
   createAt: Date;

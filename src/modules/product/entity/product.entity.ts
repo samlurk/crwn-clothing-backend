@@ -5,10 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  OneToMany
 } from 'typeorm';
 import { Category } from '../../category/entity/category.entity';
 import { User } from 'src/modules/user/entity/user.entity';
+// import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
 
 @Entity('products')
 export class Product {
@@ -25,6 +27,9 @@ export class Product {
   price: number;
 
   @Column()
+  inventory: number;
+
+  @Column()
   imageUrl: string;
 
   @ManyToOne(() => User, (user) => user.products, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
@@ -34,6 +39,9 @@ export class Product {
   @ManyToOne(() => Category, (category) => category.products, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn({ name: 'category_id' })
   category: Category;
+
+  // @OneToMany(() => CartItem, (cartItem) => cartItem.products)
+  // cartItem: CartItem;
 
   @CreateDateColumn()
   createAt: Date;

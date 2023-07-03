@@ -57,7 +57,8 @@ export class AuthService {
   }
 
   async signUp(newUser: CreateUserDto) {
-    const userResponse = await this.userService.addUser(newUser);
+    const userInsertedResponse = await this.userService.addUser(newUser);
+    const userResponse = await this.userService.getOneUserById(userInsertedResponse.id);
     return await this.login(userResponse);
   }
 }
