@@ -20,11 +20,11 @@ import { UserRole } from './enums/user-role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
-@Controller('user')
+@Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
+  @Get('admin/user')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @HttpCode(200)
@@ -38,7 +38,7 @@ export class UserController {
     }
   }
 
-  @Get(':id')
+  @Get('admin/user/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @HttpCode(200)
@@ -52,39 +52,39 @@ export class UserController {
     }
   }
 
-  @Post()
+  @Post('admin/user')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @HttpCode(204)
   async createUser(@Body() newUser: CreateUserDto) {
     try {
-      await this.userService.addUser(newUser);
+      return await this.userService.addUser(newUser);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  @Put(':id')
+  @Put('admin/user/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @HttpCode(204)
   async updateUser(@Param('id', new ParseIntPipe()) userId: number, @Body() updateUser: UpdateUserDto) {
     try {
-      await this.userService.updateUser(userId, updateUser);
+      return await this.userService.updateUser(userId, updateUser);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  @Delete(':id')
+  @Delete('admin/user/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @HttpCode(204)
   async deleteUser(@Param('id', new ParseIntPipe()) id: number) {
     try {
-      await this.userService.deleteUser(id);
+      return await this.userService.deleteUser(id);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);

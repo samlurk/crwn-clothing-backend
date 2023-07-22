@@ -22,7 +22,7 @@ export class ProductService {
     const productRepo = this.productRepository.create(product as Product);
     productRepo.vendor = user;
     productRepo.category = category;
-    await this.productRepository.insert(productRepo);
+    return await this.productRepository.insert(productRepo);
   }
 
   async getAllProducts() {
@@ -32,39 +32,43 @@ export class ProductService {
       .leftJoinAndSelect('products.vendor', 'user')
       .select(['products', 'category.id', 'category.title', 'user.username'])
       .getMany();
-    if (productResponse.length === 0 || typeof productResponse[0] === undefined)
-      throw new HttpException('product/no-product-found', HttpStatus.NOT_FOUND);
+    if (productResponse.length === 0) throw new HttpException('product/no-product-found', HttpStatus.NOT_FOUND);
+    return productResponse;
+  }
+
+  async getManyProducts(ids: number[]) {
+    const productResponse = await this.productRepository
+      .createQueryBuilder('products')
+      .leftJoinAndSelect('products.category', 'category')
+      .leftJoinAndSelect('products.vendor', 'user')
+      .select(['products', 'category.id', 'category.title', 'user.username'])
+      .where('products.id IN (:...ids)', { ids })
+      .getMany();
+    if (productResponse.length === 0) throw new HttpException('product/no-product-found', HttpStatus.NOT_FOUND);
     return productResponse;
   }
 
   async getOneProduct(id: number) {
     const productResponse = await this.productRepository
       .createQueryBuilder('products')
+      .leftJoinAndSelect('products.category', 'category')
+      .leftJoinAndSelect('products.vendor', 'user')
+      .select(['products', 'category.id', 'category.title', 'user.username'])
       .where('products.id = :id ', { id })
       .getOne();
     if (productResponse === null) throw new HttpException('product/product-not-found', HttpStatus.NOT_FOUND);
     return productResponse;
   }
 
-  async getMultipleProducts(products: number[]) {
-    const productResponse = await this.productRepository
-      .createQueryBuilder('products')
-      .where('products.id IN (:...products)', { products })
-      .getMany();
-    if (productResponse.length === 0 || typeof productResponse[0] === undefined)
-      throw new HttpException('product/no-product-found', HttpStatus.NOT_FOUND);
-    return productResponse;
-  }
-
   async updateProduct(id: number, updateProduct: UpdateProductDto) {
     const productResponse = await this.productRepository.findOne({ where: { id } });
     if (productResponse === null) throw new HttpException('product/product-not-found', HttpStatus.NOT_FOUND);
-    await this.productRepository.update(id, updateProduct);
+    return await this.productRepository.update(id, updateProduct);
   }
 
   async deleteProduct(id: number) {
     const productResponse = await this.productRepository.exist({ where: { id } });
     if (!productResponse) throw new HttpException('product/product-not-found', HttpStatus.NOT_FOUND);
-    await this.productRepository.delete(id);
+    return await this.productRepository.delete(id);
   }
 }

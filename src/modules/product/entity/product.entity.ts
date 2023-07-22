@@ -6,11 +6,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-  OneToMany
+  OneToOne
 } from 'typeorm';
 import { Category } from '../../category/entity/category.entity';
 import { User } from 'src/modules/user/entity/user.entity';
-// import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
+import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
 
 @Entity('products')
 export class Product {
@@ -26,7 +26,7 @@ export class Product {
   @Column()
   price: number;
 
-  @Column()
+  @Column({ default: 40 })
   inventory: number;
 
   @Column()
@@ -40,8 +40,8 @@ export class Product {
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  // @OneToMany(() => CartItem, (cartItem) => cartItem.products)
-  // cartItem: CartItem;
+  @OneToOne(() => CartItem, (cartItem) => cartItem.product)
+  cartItem: CartItem;
 
   @CreateDateColumn()
   createAt: Date;

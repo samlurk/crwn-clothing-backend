@@ -44,7 +44,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('verify-token')
+  @Get('verify-session')
   async verifyToken(@Req() req: Request) {
     const token = req.headers.authorization?.substring(7);
     return { token };

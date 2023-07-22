@@ -8,9 +8,10 @@ import { UpdateCategoryDto } from './dtos/update-category.dto';
 @Injectable()
 export class CategoryService {
   constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>) {}
+
   async addCategory(newCategory: CreateCategoryDto) {
     const category = this.categoryRepository.create({ ...newCategory });
-    await this.categoryRepository.insert(category);
+    return await this.categoryRepository.insert(category);
   }
 
   async getAllCategories() {
@@ -41,12 +42,12 @@ export class CategoryService {
   async updateCategory(id: number, updateCategory: UpdateCategoryDto) {
     const categoryResponse = await this.categoryRepository.findOne({ where: { id } });
     if (categoryResponse === null) throw new HttpException('category/no-category-found', HttpStatus.NOT_FOUND);
-    await this.categoryRepository.update(id, updateCategory);
+    return await this.categoryRepository.update(id, updateCategory);
   }
 
   async deleteCategory(id: number) {
     const categoryResponse = await this.categoryRepository.exist({ where: { id } });
     if (!categoryResponse) throw new HttpException('category/no-category-found', HttpStatus.NOT_FOUND);
-    await this.categoryRepository.delete(id);
+    return await this.categoryRepository.delete(id);
   }
 }

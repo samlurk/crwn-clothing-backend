@@ -6,6 +6,7 @@ import Base from './base';
 import Database from './db';
 import { Product } from 'src/modules/product/entity/product.entity';
 import { Category } from 'src/modules/category/entity/category.entity';
+import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
 
 @Module({
   imports: [
@@ -20,9 +21,9 @@ import { Category } from 'src/modules/category/entity/category.entity';
         username: configService.get<string>('dbUsername'),
         password: configService.get<string>('dbPassword'),
         database: configService.get<string>('dbName'),
-        synchronize: true,
         logging: true,
-        entities: [User, Product, Category],
+        synchronize: true,
+        entities: [User, Product, Category, CartItem],
         subscribers: [],
         migrations: []
       })

@@ -19,23 +19,11 @@ import { UserRole } from '../user/enums/user-role.enum';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
-@Controller('category')
+@Controller()
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Admin)
-  async createCategory(@Body() newCategory: CreateCategoryDto) {
-    try {
-      await this.categoryService.addCategory(newCategory);
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Get()
+  @Get('category')
   async getAllCategories() {
     try {
       const categoryResponse = await this.categoryService.getAllCategories();
@@ -46,7 +34,7 @@ export class CategoryController {
     }
   }
 
-  @Get('products')
+  @Get('category/products')
   async getAllProductsByCategories() {
     try {
       const categoryResponse = await this.categoryService.getAllProductsByCategories();
@@ -57,7 +45,7 @@ export class CategoryController {
     }
   }
 
-  @Get(':id')
+  @Get('category/:id')
   async getOneCategory(@Param('id', new ParseIntPipe()) id: number) {
     try {
       const categoryResponse = await this.categoryService.getOneCategory(id);
@@ -68,24 +56,36 @@ export class CategoryController {
     }
   }
 
-  @Put(':id')
+  @Post('admin/category')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  async updateCategory(@Param('id', new ParseIntPipe()) id: number, @Body() updateCategory: UpdateCategoryDto) {
+  async createCategory(@Body() newCategory: CreateCategoryDto) {
     try {
-      await this.categoryService.updateCategory(id, updateCategory);
+      return await this.categoryService.addCategory(newCategory);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  @Delete(':id')
+  @Put('admin/category/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Admin)
+  async updateCategory(@Param('id', new ParseIntPipe()) id: number, @Body() updateCategory: UpdateCategoryDto) {
+    try {
+      return await this.categoryService.updateCategory(id, updateCategory);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Delete('admin/category/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   async deleteCategory(@Param('id', new ParseIntPipe()) id: number) {
     try {
-      await this.categoryService.deleteCategory(id);
+      return await this.categoryService.deleteCategory(id);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);

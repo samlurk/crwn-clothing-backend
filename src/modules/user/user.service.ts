@@ -40,7 +40,7 @@ export class UserService {
     return userResponse;
   }
 
-  async addUser(newUser: CreateUserDto): Promise<User> {
+  async addUser(newUser: CreateUserDto) {
     if (typeof newUser.password === 'string') {
       newUser.password = await encrypt(newUser.password);
     }
@@ -48,7 +48,7 @@ export class UserService {
       throw new HttpException('user/email-already-exists', HttpStatus.BAD_REQUEST);
     }
     const user = this.userRepository.create({ ...newUser, username: await this.generateUniqueRandomUsername() });
-    return (await this.userRepository.insert(user)).generatedMaps[0] as User;
+    return await this.userRepository.insert(user);
   }
 
   async addGoogleUser(newUser: Pick<User, 'firstName' | 'lastName' | 'email' | 'avatar'>): Promise<User> {
@@ -87,14 +87,14 @@ export class UserService {
       if (await this.ifUserExists({ phone: updateUser.phone }))
         throw new HttpException('user/phone-already-exists', HttpStatus.BAD_REQUEST);
     }
-    await this.userRepository.update(id, updateUser);
+    return await this.userRepository.update(id, updateUser);
   }
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(id: number) {
     if (!(await this.userRepository.exist({ where: { id } }))) {
       throw new HttpException('user/user-not-found', HttpStatus.NOT_FOUND);
     }
-    await this.userRepository.delete({ id });
+    return await this.userRepository.delete({ id });
   }
 
   async generateUniqueRandomUsername() {
