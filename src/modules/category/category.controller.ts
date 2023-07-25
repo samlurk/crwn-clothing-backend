@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -24,6 +25,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get('category')
+  @HttpCode(200)
   async getAllCategories() {
     try {
       const categoryResponse = await this.categoryService.getAllCategories();
@@ -35,6 +37,7 @@ export class CategoryController {
   }
 
   @Get('category/products')
+  @HttpCode(200)
   async getAllProductsByCategories() {
     try {
       const categoryResponse = await this.categoryService.getAllProductsByCategories();
@@ -46,6 +49,7 @@ export class CategoryController {
   }
 
   @Get('category/:id')
+  @HttpCode(200)
   async getOneCategory(@Param('id', new ParseIntPipe()) id: number) {
     try {
       const categoryResponse = await this.categoryService.getOneCategory(id);
@@ -57,6 +61,7 @@ export class CategoryController {
   }
 
   @Post('admin/category')
+  @HttpCode(201)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   async createCategory(@Body() newCategory: CreateCategoryDto) {
@@ -71,6 +76,7 @@ export class CategoryController {
   @Put('admin/category/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
+  @HttpCode(204)
   async updateCategory(@Param('id', new ParseIntPipe()) id: number, @Body() updateCategory: UpdateCategoryDto) {
     try {
       return await this.categoryService.updateCategory(id, updateCategory);
@@ -83,6 +89,7 @@ export class CategoryController {
   @Delete('admin/category/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
+  @HttpCode(204)
   async deleteCategory(@Param('id', new ParseIntPipe()) id: number) {
     try {
       return await this.categoryService.deleteCategory(id);

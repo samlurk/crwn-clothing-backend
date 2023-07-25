@@ -4,7 +4,7 @@ import { InsertResult, Repository, UpdateResult } from 'typeorm';
 import { CartItem } from './entity/cart-item.entity';
 import { UserService } from '../user/user.service';
 import { ProductService } from '../product/product.service';
-import { CartItemDto } from './dtos/cart-items.dto';
+import { CreateCartItemDto } from './dtos/create-cart-items.dto';
 import { AssociativeCartItemInterface } from './interfaces/cart-item.interface';
 
 @Injectable()
@@ -18,8 +18,8 @@ export class CartItemService {
   async getAllCartItems(userId: number) {
     const cartItemResponse = await this.cartItemRepository
       .createQueryBuilder('cart_items')
-      .leftJoinAndSelect('cart_items.session', 'user')
-      .leftJoinAndSelect('cart_items.product', 'product')
+      .innerJoinAndSelect('cart_items.session', 'user')
+      .innerJoinAndSelect('cart_items.product', 'product')
       .select(['cart_items', 'product', 'user.id'])
       .where('cart_items.session = :userId', { userId })
       .getMany();
@@ -30,8 +30,8 @@ export class CartItemService {
   async getOneCartItem(userId: number, productId: number) {
     const cartItemResponse = await this.cartItemRepository
       .createQueryBuilder('cart_items')
-      .leftJoinAndSelect('cart_items.session', 'user')
-      .leftJoinAndSelect('cart_items.product', 'product')
+      .innerJoinAndSelect('cart_items.session', 'user')
+      .innerJoinAndSelect('cart_items.product', 'product')
       .select(['cart_items', 'product', 'user.id'])
       .where('cart_items.session = :userId AND cart_items.product = :productId', { userId, productId })
       .getOne();
@@ -39,7 +39,7 @@ export class CartItemService {
     return cartItemResponse;
   }
 
-  async addManyItemsToCart(userId: number, items: CartItemDto[]) {
+  async addManyItemsToCart(userId: number, items: CreateCartItemDto[]) {
     const associativeCartItems = items.reduce(
       (prev, curr) => ({ ...prev, [curr.id]: curr }),
       {}
@@ -53,9 +53,10 @@ export class CartItemService {
 
     const cartItemResponse = await this.cartItemRepository
       .createQueryBuilder('cart_items')
-      .leftJoinAndSelect('cart_items.session', 'user')
-      .leftJoinAndSelect('cart_items.product', 'product')
-      .where('cart_items.session = :userId AND cart_items.product IN (:...productIds)', {
+      .innerJoinAndSelect('cart_items.session', 'session')
+      .innerJoinAndSelect('cart_items.product', 'product')
+      .select(['cart_items', 'session.id', 'product.id'])
+      .where('session.id = :userId AND product.id IN (:...productIds)', {
         userId,
         productIds
       })
@@ -77,13 +78,16 @@ export class CartItemService {
           updateResult = {
             ...updateResult,
             ...(await this.cartItemRepository
-              .createQueryBuilder()
+              .createQueryBuilder('cart_items')
               .update(CartItem)
               .set({
                 quantity: cartItemOld.quantity + associativeCartItems[productToAdd.id].quantity,
                 total: cartItemOld.total + productToAdd.price * associativeCartItems[productToAdd.id].quantity
               })
-              .where('session = :userId AND product = :productId', { userId, productId: productToAdd.id })
+              .where('session = :userId AND product = :productId', {
+                userId,
+                productId: productToAdd.id
+              })
               .execute()),
             affected: updateResult?.affected === undefined ? 1 : updateResult.affected + 1
           };
@@ -123,8 +127,8 @@ export class CartItemService {
 
     const cartItemResponse = await this.cartItemRepository
       .createQueryBuilder('cart_items')
-      .leftJoinAndSelect('cart_items.session', 'user')
-      .leftJoinAndSelect('cart_items.product', 'product')
+      .innerJoinAndSelect('cart_items.session', 'session')
+      .innerJoinAndSelect('cart_items.product', 'product')
       .where('cart_items.session = :userId AND cart_items.product = :productId', {
         userId,
         productId: productResponse.id

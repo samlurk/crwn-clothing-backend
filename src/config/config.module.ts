@@ -7,6 +7,8 @@ import Database from './db';
 import { Product } from 'src/modules/product/entity/product.entity';
 import { Category } from 'src/modules/category/entity/category.entity';
 import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
+import { Order } from 'src/modules/order/entity/order.entity';
+import { PaymentDetail } from 'src/modules/payment-detail/entity/payment-detail.entity';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
         database: configService.get<string>('dbName'),
         logging: true,
         synchronize: true,
-        entities: [User, Product, Category, CartItem],
+        entities: [User, Product, Category, CartItem, Order, PaymentDetail],
         subscribers: [],
         migrations: []
       })

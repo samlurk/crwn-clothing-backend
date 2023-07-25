@@ -1,7 +1,17 @@
 import { Product } from 'src/modules/product/entity/product.entity';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  OneToOne
+} from 'typeorm';
 import { UserRole } from '../enums/user-role.enum';
 import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
+import { Order } from 'src/modules/order/entity/order.entity';
+import { PaymentDetail } from 'src/modules/payment-detail/entity/payment-detail.entity';
 
 @Entity('users')
 export class User {
@@ -44,6 +54,12 @@ export class User {
 
   @OneToMany(() => CartItem, (cartItem) => cartItem.session)
   cartItem: CartItem[];
+
+  @OneToMany(() => Order, (order) => order.customer)
+  orders: Order[];
+
+  @OneToOne(() => PaymentDetail, (paymentDetail) => paymentDetail.customer)
+  paymentDetail: PaymentDetail;
 
   @CreateDateColumn()
   createAt: Date;

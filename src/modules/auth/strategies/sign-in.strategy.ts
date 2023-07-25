@@ -12,8 +12,8 @@ export class SignInStrategy extends PassportStrategy(Strategy) {
 
   async validate(username: string, password: string): Promise<any> {
     const userResponse = await this.userService.findOneByEmailOrUsername(username);
-    if (typeof userResponse === 'string') throw new HttpException(userResponse, HttpStatus.NOT_FOUND);
-    if (!(await verified(password, userResponse.password)))
+
+    if (userResponse.password === null || !(await verified(password, userResponse.password)))
       throw new HttpException('user/wrong-password', HttpStatus.NOT_FOUND);
     return userResponse;
   }

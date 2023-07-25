@@ -12,7 +12,7 @@ export class Category {
   @Column()
   imageUrl: string;
 
-  @OneToMany(() => Product, (product) => product.category, { onUpdate: 'CASCADE', onDelete: 'SET NULL' })
+  @OneToMany(() => Product, (product) => product.category)
   products: Product[];
 
   @CreateDateColumn()

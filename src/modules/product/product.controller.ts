@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -24,6 +25,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get('product')
+  @HttpCode(200)
   async getAllProducts() {
     try {
       const productResponse = await this.productService.getAllProducts();
@@ -35,6 +37,7 @@ export class ProductController {
   }
 
   @Get('product/:id')
+  @HttpCode(200)
   async getOneProduct(@Param('id', new ParseIntPipe()) id: number) {
     try {
       const productResponse = await this.productService.getOneProduct(id);
@@ -48,6 +51,7 @@ export class ProductController {
   @Post('admin/product')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
+  @HttpCode(201)
   async createProduct(@Body() newProduct: CreateProductDto) {
     try {
       return await this.productService.addProduct(newProduct);
@@ -60,6 +64,7 @@ export class ProductController {
   @Put('admin/product/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
+  @HttpCode(204)
   async updateProduct(@Param('id', new ParseIntPipe()) id: number, @Body() updateCategory: UpdateProductDto) {
     try {
       return await this.productService.updateProduct(id, updateCategory);
@@ -72,6 +77,7 @@ export class ProductController {
   @Delete('admin/product/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
+  @HttpCode(204)
   async deleteProduct(@Param('id', new ParseIntPipe()) id: number) {
     try {
       return await this.productService.deleteProduct(id);

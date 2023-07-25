@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class CartItemDto {
+export class CreateCartItemDto {
   @IsNumber()
   @IsNotEmpty()
   id: number;
@@ -10,6 +10,6 @@ export class CartItemDto {
   quantity: number;
 }
 
-export class CartItemsDto {
-  cartItems: CartItemDto[];
+export class CreateCartItemsDto {
+  cartItems: CreateCartItemDto[];
 }

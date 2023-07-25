@@ -19,18 +19,20 @@ export class ProductService {
     const { categoryId, userId, ...product } = newProduct;
     const category = await this.categoryService.getOneCategory(categoryId);
     const user = await this.userService.getOneUserById(userId);
-    const productRepo = this.productRepository.create(product as Product);
-    productRepo.vendor = user;
-    productRepo.category = category;
-    return await this.productRepository.insert(productRepo);
+    return await this.productRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Product)
+      .values({ ...product, vendor: user, category })
+      .execute();
   }
 
   async getAllProducts() {
     const productResponse = await this.productRepository
       .createQueryBuilder('products')
-      .leftJoinAndSelect('products.category', 'category')
-      .leftJoinAndSelect('products.vendor', 'user')
-      .select(['products', 'category.id', 'category.title', 'user.username'])
+      .innerJoinAndSelect('products.category', 'category')
+      .innerJoinAndSelect('products.vendor', 'vendor')
+      .select(['products', 'category.id', 'vendor.id'])
       .getMany();
     if (productResponse.length === 0) throw new HttpException('product/no-product-found', HttpStatus.NOT_FOUND);
     return productResponse;
@@ -39,9 +41,9 @@ export class ProductService {
   async getManyProducts(ids: number[]) {
     const productResponse = await this.productRepository
       .createQueryBuilder('products')
-      .leftJoinAndSelect('products.category', 'category')
-      .leftJoinAndSelect('products.vendor', 'user')
-      .select(['products', 'category.id', 'category.title', 'user.username'])
+      .innerJoinAndSelect('products.category', 'category')
+      .innerJoinAndSelect('products.vendor', 'vendor')
+      .select(['products', 'category.id', 'vendor.id'])
       .where('products.id IN (:...ids)', { ids })
       .getMany();
     if (productResponse.length === 0) throw new HttpException('product/no-product-found', HttpStatus.NOT_FOUND);
@@ -51,9 +53,9 @@ export class ProductService {
   async getOneProduct(id: number) {
     const productResponse = await this.productRepository
       .createQueryBuilder('products')
-      .leftJoinAndSelect('products.category', 'category')
-      .leftJoinAndSelect('products.vendor', 'user')
-      .select(['products', 'category.id', 'category.title', 'user.username'])
+      .innerJoinAndSelect('products.category', 'category')
+      .innerJoinAndSelect('products.vendor', 'vendor')
+      .select(['products', 'category.id', 'vendor.id'])
       .where('products.id = :id ', { id })
       .getOne();
     if (productResponse === null) throw new HttpException('product/product-not-found', HttpStatus.NOT_FOUND);
@@ -61,14 +63,23 @@ export class ProductService {
   }
 
   async updateProduct(id: number, updateProduct: UpdateProductDto) {
-    const productResponse = await this.productRepository.findOne({ where: { id } });
-    if (productResponse === null) throw new HttpException('product/product-not-found', HttpStatus.NOT_FOUND);
-    return await this.productRepository.update(id, updateProduct);
+    await this.getOneProduct(id);
+    return await this.productRepository
+      .createQueryBuilder('products')
+      .update(Product)
+      .set(updateProduct)
+      .where('id = :id', { id })
+      .execute();
   }
 
   async deleteProduct(id: number) {
     const productResponse = await this.productRepository.exist({ where: { id } });
     if (!productResponse) throw new HttpException('product/product-not-found', HttpStatus.NOT_FOUND);
-    return await this.productRepository.delete(id);
+    return await this.productRepository
+      .createQueryBuilder('products')
+      .delete()
+      .from(Product)
+      .where('id = :id', { id })
+      .execute();
   }
 }

@@ -47,16 +47,24 @@ export class UserService {
     if (await this.ifUserExists({ email: newUser.email })) {
       throw new HttpException('user/email-already-exists', HttpStatus.BAD_REQUEST);
     }
-    const user = this.userRepository.create({ ...newUser, username: await this.generateUniqueRandomUsername() });
-    return await this.userRepository.insert(user);
+    return await this.userRepository
+      .createQueryBuilder('users')
+      .insert()
+      .into(User)
+      .values({ ...newUser, username: await this.generateUniqueRandomUsername() })
+      .execute();
   }
 
   async addGoogleUser(newUser: Pick<User, 'firstName' | 'lastName' | 'email' | 'avatar'>): Promise<User> {
     const ifUserDataExists = await this.userRepository.findOne({ where: { email: newUser.email } });
     if (ifUserDataExists === null) {
-      const user = this.userRepository.create({ ...newUser, username: await this.generateUniqueRandomUsername() });
-      const userInsertedResponse = (await this.userRepository.insert(user)).generatedMaps[0] as User;
-      return await this.getOneUserById(userInsertedResponse.id);
+      const user = await this.userRepository
+        .createQueryBuilder('users')
+        .insert()
+        .into(User)
+        .values({ ...newUser, username: await this.generateUniqueRandomUsername() })
+        .execute();
+      return await this.getOneUserById(user.generatedMaps[0].id);
     } else {
       return ifUserDataExists;
     }
@@ -64,8 +72,8 @@ export class UserService {
 
   async findOneByEmailOrUsername(usernameOrEmail: string): Promise<User> {
     const userResponse = await this.userRepository
-      .createQueryBuilder('user')
-      .where('user.email = :usernameOrEmail OR user.username = :usernameOrEmail', { usernameOrEmail })
+      .createQueryBuilder('users')
+      .where('users.email = :usernameOrEmail OR users.username = :usernameOrEmail', { usernameOrEmail })
       .getOne();
     if (userResponse === null) throw new HttpException('user/username-or-email-not-found', HttpStatus.NOT_FOUND);
     return userResponse;
@@ -87,14 +95,24 @@ export class UserService {
       if (await this.ifUserExists({ phone: updateUser.phone }))
         throw new HttpException('user/phone-already-exists', HttpStatus.BAD_REQUEST);
     }
-    return await this.userRepository.update(id, updateUser);
+    return await this.userRepository
+      .createQueryBuilder('users')
+      .update(User)
+      .set(updateUser)
+      .where('id = :id', { id })
+      .execute();
   }
 
   async deleteUser(id: number) {
     if (!(await this.userRepository.exist({ where: { id } }))) {
       throw new HttpException('user/user-not-found', HttpStatus.NOT_FOUND);
     }
-    return await this.userRepository.delete({ id });
+    return await this.userRepository
+      .createQueryBuilder('users')
+      .delete()
+      .from(User)
+      .where('id = :id', { id })
+      .execute();
   }
 
   async generateUniqueRandomUsername() {

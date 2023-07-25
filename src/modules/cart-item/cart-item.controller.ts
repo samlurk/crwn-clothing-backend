@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CartItemService } from './cart-item.service';
 import { Request } from 'express';
 import { ReqExtUserInterface } from '../auth/interfaces/req-ext-user.interface';
-import { CartItemsDto } from './dtos/cart-items.dto';
+import { CreateCartItemsDto } from './dtos/create-cart-items.dto';
 
 @Controller()
 export class CartItemController {
@@ -25,7 +25,7 @@ export class CartItemController {
   @Get('cart-item')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async getCartItemsByUser(@Req() req: Request & ReqExtUserInterface) {
+  async getAllCartItems(@Req() req: Request & ReqExtUserInterface) {
     try {
       const cartItemsResponse = await this.cartItemService.getAllCartItems(req.user?.id as number);
       return cartItemsResponse;
@@ -38,13 +38,10 @@ export class CartItemController {
   @Get('cart-item/:id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async getCartItemByUser(
-    @Req() req: Request & ReqExtUserInterface,
-    @Param('id', new ParseIntPipe()) productId: number
-  ) {
+  async getOneCartItem(@Req() req: Request & ReqExtUserInterface, @Param('id', new ParseIntPipe()) productId: number) {
     try {
-      const cartItemsResponse = await this.cartItemService.getOneCartItem(req.user?.id as number, productId);
-      return cartItemsResponse;
+      const cartItemResponse = await this.cartItemService.getOneCartItem(req.user?.id as number, productId);
+      return cartItemResponse;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,7 +51,7 @@ export class CartItemController {
   @Put('cart-item/bulk/add')
   @UseGuards(JwtAuthGuard)
   @HttpCode(201)
-  async addManyItemsToCart(@Req() req: Request & ReqExtUserInterface, @Body() { cartItems }: CartItemsDto) {
+  async addManyItemsToCart(@Req() req: Request & ReqExtUserInterface, @Body() { cartItems }: CreateCartItemsDto) {
     try {
       return await this.cartItemService.addManyItemsToCart(req.user?.id as number, cartItems);
     } catch (error) {
@@ -77,7 +74,7 @@ export class CartItemController {
 
   @Get('cart-item/remove/:id')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(200)
+  @HttpCode(204)
   async removeItemToCart(
     @Req() req: Request & ReqExtUserInterface,
     @Param('id', new ParseIntPipe()) productId: number
@@ -92,7 +89,7 @@ export class CartItemController {
 
   @Delete('cart-item/clear/:id')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(200)
+  @HttpCode(204)
   async clearItemFromCart(
     @Req() req: Request & ReqExtUserInterface,
     @Param('id', new ParseIntPipe()) productId: number

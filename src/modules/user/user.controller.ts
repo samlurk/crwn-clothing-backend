@@ -30,8 +30,7 @@ export class UserController {
   @HttpCode(200)
   async getAllUsers() {
     try {
-      const userResponse = await this.userService.getAllUsers();
-      return userResponse;
+      return await this.userService.getAllUsers();
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -44,8 +43,7 @@ export class UserController {
   @HttpCode(200)
   async getOneUser(@Param('id', new ParseIntPipe()) userId: number) {
     try {
-      const userResponse = await this.userService.getOneUserById(userId);
-      return userResponse;
+      return await this.userService.getOneUserById(userId);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else throw new HttpException('INTERNAL SERVER ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -55,7 +53,7 @@ export class UserController {
   @Post('admin/user')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  @HttpCode(204)
+  @HttpCode(201)
   async createUser(@Body() newUser: CreateUserDto) {
     try {
       return await this.userService.addUser(newUser);
