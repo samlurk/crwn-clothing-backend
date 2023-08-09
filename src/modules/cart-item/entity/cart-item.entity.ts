@@ -1,4 +1,3 @@
-import { Order } from 'src/modules/order/entity/order.entity';
 import { Product } from 'src/modules/product/entity/product.entity';
 import { User } from 'src/modules/user/entity/user.entity';
 import {
@@ -8,9 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
-  OneToOne,
-  ManyToOne,
-  OneToMany
+  ManyToOne
 } from 'typeorm';
 
 @Entity('cart_items')
@@ -28,12 +25,9 @@ export class CartItem {
   @JoinColumn({ name: 'session_id' })
   session: User;
 
-  @OneToOne(() => Product, (product) => product.cartItem, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  @ManyToOne(() => Product, (product) => product.cartItem, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   product: Product;
-
-  @OneToMany(() => Order, (order) => order.cartItems)
-  order: Order;
 
   @CreateDateColumn()
   createAt: Date;

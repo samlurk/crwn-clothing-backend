@@ -27,6 +27,18 @@ export class CartItemService {
     return cartItemResponse;
   }
 
+  async getManyCartItems(userId: number, cartItemIds: number[]) {
+    const cartItemResponse = await this.cartItemRepository
+      .createQueryBuilder('cart_items')
+      .innerJoinAndSelect('cart_items.session', 'user')
+      .innerJoinAndSelect('cart_items.product', 'product')
+      .select(['cart_items', 'product', 'user.id'])
+      .where('cart_items.session = :userId AND id IN (:...cartItemIds)', { userId, cartItemIds })
+      .getMany();
+    if (cartItemResponse.length === 0) throw new HttpException('cart-item/no-cart-item-found', HttpStatus.NOT_FOUND);
+    return cartItemResponse;
+  }
+
   async getOneCartItem(userId: number, productId: number) {
     const cartItemResponse = await this.cartItemRepository
       .createQueryBuilder('cart_items')
@@ -136,17 +148,12 @@ export class CartItemService {
       .getOne();
 
     if (cartItemResponse === null) {
-      return await this.cartItemRepository
-        .createQueryBuilder()
-        .insert()
-        .into(CartItem)
-        .values({
-          product: productResponse,
-          session: userResponse,
-          quantity: 1,
-          total: productResponse.price
-        })
-        .execute();
+      return await this.cartItemRepository.save({
+        product: productResponse,
+        session: userResponse,
+        quantity: 1,
+        total: productResponse.price
+      });
     } else {
       const { id, quantity, total } = cartItemResponse;
       return await this.cartItemRepository
@@ -188,6 +195,15 @@ export class CartItemService {
       .delete()
       .from(CartItem)
       .where('cart_items.id = :id', { id })
+      .execute();
+  }
+
+  async clearAllItemsFromCart(userId: number) {
+    return await this.cartItemRepository
+      .createQueryBuilder('cart_items')
+      .delete()
+      .from(CartItem)
+      .where('session.id = :userId', { userId })
       .execute();
   }
 }

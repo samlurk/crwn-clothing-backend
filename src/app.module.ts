@@ -4,10 +4,10 @@ import { ConfigAppModule } from './config/config.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
-import { PaymentModule } from './modules/payment/payment.module';
 import { CartItemModule } from './modules/cart-item/cart-item.module';
 import { OrderModule } from './modules/order/order.module';
 import { PaymentDetailModule } from './modules/payment-detail/payment-detail.module';
+import { OrderItemsModule } from './modules/order-items/order-items.module';
 
 @Module({
   imports: [
@@ -16,10 +16,10 @@ import { PaymentDetailModule } from './modules/payment-detail/payment-detail.mod
     AuthModule,
     ProductModule,
     CategoryModule,
-    PaymentModule,
     CartItemModule,
     OrderModule,
-    PaymentDetailModule
+    PaymentDetailModule,
+    OrderItemsModule
   ],
   controllers: [],
   providers: []

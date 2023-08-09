@@ -74,7 +74,6 @@ export class CartItemController {
 
   @Get('cart-item/remove/:id')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(204)
   async removeItemToCart(
     @Req() req: Request & ReqExtUserInterface,
     @Param('id', new ParseIntPipe()) productId: number
@@ -89,7 +88,6 @@ export class CartItemController {
 
   @Delete('cart-item/clear/:id')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(204)
   async clearItemFromCart(
     @Req() req: Request & ReqExtUserInterface,
     @Param('id', new ParseIntPipe()) productId: number

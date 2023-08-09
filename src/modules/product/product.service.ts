@@ -82,4 +82,12 @@ export class ProductService {
       .where('id = :id', { id })
       .execute();
   }
+
+  async incrementProductInventory(productId: number, increase = 1) {
+    await this.productRepository.increment({ id: productId }, 'inventory', increase);
+  }
+
+  async decrementProductInventory(productId: number, decrease = 1) {
+    await this.productRepository.decrement({ id: productId }, 'inventory', decrease);
+  }
 }

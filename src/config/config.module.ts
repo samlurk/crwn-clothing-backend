@@ -9,6 +9,7 @@ import { Category } from 'src/modules/category/entity/category.entity';
 import { CartItem } from 'src/modules/cart-item/entity/cart-item.entity';
 import { Order } from 'src/modules/order/entity/order.entity';
 import { PaymentDetail } from 'src/modules/payment-detail/entity/payment-detail.entity';
+import { OrderItems } from 'src/modules/order-items/entity/order-items.entity';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { PaymentDetail } from 'src/modules/payment-detail/entity/payment-detail.
         database: configService.get<string>('dbName'),
         logging: true,
         synchronize: true,
-        entities: [User, Product, Category, CartItem, Order, PaymentDetail],
+        entities: [User, Product, Category, CartItem, Order, PaymentDetail, OrderItems],
         subscribers: [],
         migrations: []
       })

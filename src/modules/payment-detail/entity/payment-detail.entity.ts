@@ -1,5 +1,4 @@
 import { Order } from 'src/modules/order/entity/order.entity';
-import { User } from 'src/modules/user/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -9,6 +8,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
+import { PaymentDetailStatus } from '../enums/payment-detail-status.enum';
+import { PaymentDetailProvider } from '../enums/payment-detail-provider.enum';
 
 @Entity('payment_detail')
 export class PaymentDetail {
@@ -16,17 +17,21 @@ export class PaymentDetail {
   id: number;
 
   @Column()
-  provider: string;
+  provider: PaymentDetailProvider;
+
+  @Column({
+    type: 'enum',
+    enum: PaymentDetailStatus,
+    default: PaymentDetailStatus.Created
+  })
+  status: PaymentDetailStatus;
 
   @Column()
-  status: string;
+  paymentId: string;
 
   @OneToOne(() => Order, (order) => order.paymentDetail)
+  @JoinColumn({ name: 'order_id' })
   order: Order;
-
-  @OneToOne(() => User, (user) => user.paymentDetail, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  @JoinColumn({ name: 'customer_id' })
-  customer: User;
 
   @CreateDateColumn()
   createAt: Date;
