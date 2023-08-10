@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import { CreateUserDto } from '../user/dtos/create-user.dto';
+import { User } from '../user/entity/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -13,8 +14,8 @@ export class AuthService {
     private readonly configService: ConfigService
   ) {}
 
-  async login({ id, username, email, role, avatar }: any) {
-    const payload = { id, username, email, role, avatar };
+  async login({ id, username, email, role, avatar, firstName, lastName }: User) {
+    const payload = { id, username, displayName: `${firstName} ${lastName}`, email, role, avatar };
     return {
       ACCESS_TOKEN: this.jwtService.sign(payload)
     };

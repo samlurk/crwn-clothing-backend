@@ -4,6 +4,7 @@ import { SignInAuthGuard } from './guards/local-auth.guard';
 import { CreateUserDto } from '../user/dtos/create-user.dto';
 import { Request } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { User } from '../user/entity/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -13,7 +14,7 @@ export class AuthController {
   @HttpCode(200)
   async login(@Req() req: Request) {
     try {
-      const authResponse = await this.authService.login(req.user);
+      const authResponse = await this.authService.login(req.user as User);
       return authResponse;
     } catch (error) {
       if (error instanceof HttpException) throw error;
