@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  backend:
+      container_name: crwn-clothing-backend-dev
+      depends_on:
+      - postgresql
+      build: 
+        context: ./
+        dockerfile: ./Dockerfile
+        target: development
+      volumes:
+        - .:/usr/src/app
+      env_file: .env
+      command: yarn run start:dev
+      ports:
+        - "3000:${PORT}"
+      networks:
+      - crwn-clothing
+  postgresql:
+    container_name: crwn-clothing-db
+    image: postgres:latest
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:${DB_PORT}"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - crwn-clothing
+volumes:
+  postgres-data:
+networks:
+  crwn-clothing:
+    external: true
